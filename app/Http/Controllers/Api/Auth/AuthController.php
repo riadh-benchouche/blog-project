@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
+use App\Enum\Platforms;
 use App\Http\Controllers\ApiController;
-// use App\Enums\Platforms;
 use App\Enum\Status;
 use App\Http\Requests\Auth\LoginRequest;
-// use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\Auth\UserResource;
 use App\Models\User;
 use App\Repository\Auth\UserRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use JetBrains\PhpStorm\NoReturn;
 
 class AuthController extends ApiController
 {
@@ -57,4 +59,27 @@ class AuthController extends ApiController
         ];
     }
 
+    /**
+     * @param RegisterRequest $request
+     * @return array|JsonResponse
+     * @throws Exception
+     */
+    #[NoReturn] public function register(RegisterRequest $request): JsonResponse|array
+    {
+        $user = $this->authRepository->createAccountProfile($request->all());
+        // Check roles
+        $this->authRepository->checkRoleForPlatform($user, $request->get('platform'));
+
+        return [
+            "data" => new UserResource($user),
+            "token" => $this->authRepository->createToken($user, $request->get('platform')),
+        ];
+    }
+
+    public function logout(Request $request)
+    {
+        dd($request->user());
+        $this->authRepository->revokeTokenById($request->user(), $request->user()->currentAccessToken()->id);
+        return $this->showMessage(__('logout success'));
+    }
 }

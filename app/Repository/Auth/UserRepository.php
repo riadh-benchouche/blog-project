@@ -27,17 +27,6 @@ class UserRepository
                     'provider_name' => $data['provider_name'] ?? null,
                     'provider_id' => $data['provider_id'] ?? null,
                 ]);
-                $user->profile()->create([
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'parent_full_name' => $data['parent_full_name'] ?? null,
-                    "address" => $data["address"] ?? null,
-                    "gender" => $data["gender"] ?? null,
-                    "weight" => $data["weight"] ?? null,
-                    "size" => $data["size"] ?? null,
-                    "position" => $data["position"] ?? null,
-
-                ]);
                 $user->assignRole($data['role']);
                 return $user;
             });
